@@ -25,6 +25,7 @@ def parseHtml(url)
 	_artist     = doc.xpath('//*[@id="musiclrc"]/div[1]/p[2]/span/a').text
 	_artistLink = doc.xpath('//*[@id="musiclrc"]/div[1]/p[2]/span/a').attr('href')
 	# 传入具体歌词类名 放入数组
+  @nowarray = []
 	doc.css('.lrcItem').each do |lyctxt|
 		@nowarray.push(lyctxt.text)
 	end
@@ -35,6 +36,7 @@ def parseHtml(url)
 	@data["_artist"] = _artist
 	@data["_artistLink"] = _artistLink.text
 	@data["_lyccontent"] = @nowarray.join('|').delete("'") #注意内容中的单引号符号
+  puts @data
 end
 
-parseHtml('http://www.kuwo.cn/yinyue/11589312')
+parseHtml('http://www.kuwo.cn/yinyue/7149583')

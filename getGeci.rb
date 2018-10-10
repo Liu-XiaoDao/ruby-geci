@@ -2,7 +2,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'rest-client'
-require 'sqlite3'
+require 'mysql2'
 require 'json'
 
 class Getlrc
@@ -10,6 +10,7 @@ class Getlrc
   def initialize(url)
     @nowarray  = []
     @manListId = []
+    @count = 0
     getManPage(url)
     getSong(url)
   end
@@ -67,6 +68,7 @@ class Getlrc
         # sleep 1
         page = page + 1
         # http://www.kuwo.cn/yinyue/40079875
+        puts html_response
         allSongId = JSON.parse(html_response)["data"]
         allSongId.each do |item|
           url = "http://www.kuwo.cn/yinyue/#{item["rid"]}"
@@ -83,6 +85,8 @@ class Getlrc
 
   # 获取一首歌的歌词 存入数据库 "http://www.kuwo.cn/yinyue/6749207"
   def getOneLyc(url)
+    @count += 1
+    p "第#{@count}首"
     # 读取所有歌词 放入 @data
     parseHtml(url)
     # 把 @data 插入数据库
@@ -94,6 +98,7 @@ class Getlrc
   # classname :   类名
   def parseHtml(url)
     @data = {}
+    @nowarray = []
     html  =  RestClient.get(url).body
     doc   =  Nokogiri::HTML.parse(html)
     # 注意：： 没有获取到歌词 退出  有些页面没有歌词 以及版权问题 不显示歌词
@@ -124,11 +129,14 @@ class Getlrc
         puts "没有具体文字内容"
         return
       else
-        puts "有内容存入数据库"
-        SQLite3::Database.new("lyc.db") do |db|
-          db.execute("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
-          db.close
-        end
+        puts "有内容存入数据库:歌名--#{@data["_lrcname"]}"
+        # SQLite3::Database.new("lyc.db") do |db|
+        #   db.execute("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
+        #   db.close
+        # end
+        puts "歌词文字数量#{@data["_lyccontent"].length}"
+        client = Mysql2::Client.new(:host => 'localhost',:username => 'root',:password => '123456', :database => 'geci', :encoding => 'utf8');
+        results = client.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
       end
     else
       return

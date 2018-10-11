@@ -84,7 +84,7 @@ class Getlrc
         allSongId.each do |item|
           url = "http://www.kuwo.cn/yinyue/#{item["rid"]}"
           Log.i(url)
-          Log.i(解析歌词...)
+          Log.i("解析歌词...")
           # 获取歌词
           getOneLyc(url)
         end

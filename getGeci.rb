@@ -4,6 +4,8 @@ require 'open-uri'
 require 'rest-client'
 require 'mysql2'
 require 'json'
+#log
+require './log'
 
 class Getlrc
 
@@ -27,10 +29,10 @@ class Getlrc
     # 如果是其他 范围变小
     if urlId == "qita" then
       _lastPageNum = _lastPageUrl[18..._lastPageUrl.length-4].to_i
-      puts _lastPageNum
+      Log.i(_lastPageNum)
     end
     (0..._lastPageNum).each do |i|
-      puts "loading #{i+1}"
+      Log.i("loading #{i+1}")
       getManList("http://www.kuwo.cn/geci/artist_#{urlId}_#{i}.htm")
     end
   end
@@ -68,12 +70,21 @@ class Getlrc
         # sleep 1
         page = page + 1
         # http://www.kuwo.cn/yinyue/40079875
-        puts html_response
-        allSongId = JSON.parse(html_response)["data"]
+        Log.i(html_response)
+        #有一个地方会解析出错，所以加上了这个
+        begin
+            allSongId = JSON.parse(html_response)["data"]
+        rescue => e
+            Log.i("-----这个解析出错了-----")
+            Log.e(e.message)
+            Log.e(e.backtrace.join('\n'))
+            sleep 10
+            next
+        end
         allSongId.each do |item|
           url = "http://www.kuwo.cn/yinyue/#{item["rid"]}"
-          puts url
-          puts '解析歌词...'
+          Log.i(url)
+          Log.i(解析歌词...)
           # 获取歌词
           getOneLyc(url)
         end
@@ -86,7 +97,7 @@ class Getlrc
   # 获取一首歌的歌词 存入数据库 "http://www.kuwo.cn/yinyue/6749207"
   def getOneLyc(url)
     @count += 1
-    p "第#{@count}首"
+    Log.i("第#{@count}首")
     # 读取所有歌词 放入 @data
     parseHtml(url)
     # 把 @data 插入数据库
@@ -126,26 +137,18 @@ class Getlrc
     # 没有歌词的时候就不存入数据库
     if @data.has_key?("_lyccontent") then
       if @data["_lyccontent"].length == 0 then
-        puts "没有具体文字内容"
+        Lig.i("没有具体文字内容")
         return
       else
-        puts "有内容存入数据库:歌名--#{@data["_lrcname"]}"
-        # SQLite3::Database.new("lyc.db") do |db|
-        #   db.execute("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
-        #   db.close
-        # end
-        puts "歌词文字数量#{@data["_lyccontent"].length}"
+        Log.i("有内容存入数据库:歌名--#{@data["_lrcname"]}")
+        Log.i("歌词文字数量#{@data["_lyccontent"].length}")
         client = Mysql2::Client.new(:host => 'localhost',:username => 'root',:password => '123456', :database => 'geci', :encoding => 'utf8');
         results = client.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
       end
     else
       return
-      puts "data没有内容"
+      Log.i("data没有内容")
     end
-    # SQLite3::Database.new("lyc.db") do |db|
-    #   db.execute("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
-    #   db.close
-    # end
   end
 end
 
@@ -153,7 +156,7 @@ end
 # puts run.nowarray
 # 还差一个 qita 分类没有下载 用run = Getlrc.new("http://www.kuwo.cn/geci/artist_qita.htm")
 "abcdefghijklmnopqrstuvwxyz".each_char do |item|
-  puts " -----#{item}组开始------- "
+  Log.i(" -----#{item}组开始------- ")
   run = Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")
 
 end

@@ -33,7 +33,6 @@ class Getlrc
       puts _lastPageNum
     end
     (0..._lastPageNum).each do |i|
-      puts "loading #{i+1}"
       getManList("http://www.kuwo.cn/geci/artist_#{urlId}_#{i}.htm")
     end
   end
@@ -80,7 +79,6 @@ class Getlrc
         # sleep 1
         page = page + 1
         # http://www.kuwo.cn/yinyue/40079875
-        puts html_response
         #有一个地方会解析出错，所以加上了这个
         begin
             allSongId = JSON.parse(html_response)["data"]
@@ -94,8 +92,6 @@ class Getlrc
         end
         allSongId.each do |item|
           url = "http://www.kuwo.cn/yinyue/#{item["rid"]}"
-          puts url
-          puts "解析歌词..."
           # 获取歌词
           getOneLyc(url)
         end
@@ -148,11 +144,8 @@ class Getlrc
     # 没有歌词的时候就不存入数据库
     if @data.has_key?("_lyccontent") then
       if @data["_lyccontent"].length == 0 then
-        Lig.i("没有具体文字内容")
         return
       else
-        puts "有内容存入数据库:歌名--#{@data["_lrcname"]}"
-        puts "歌词文字数量#{@data["_lyccontent"].length}"
         results = @db.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
       end
     else
@@ -168,61 +161,16 @@ end
 
 # "abcdefghijklmnopqrstuvwxyz".each_char do |item|
 #   puts " -----#{item}组开始------- "
-#   run = Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")
-# end
+#   Thread.new(Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm"))
+# end.map(&:join)
 
-puts "Started At #{Time.now}"
-t1 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_a.htm")}
-t2 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_b.htm")}
-t3 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_c.htm")}
-t4 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_d.htm")}
-t5 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_e.htm")}
-t6 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_f.htm")}
-t7 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_g.htm")}
-t8 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_h.htm")}
-t9 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_i.htm")}
-t10 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_j.htm")}
-t11 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_k.htm")}
-t12 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_l.htm")}
-t13 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_m.htm")}
-t14 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_n.htm")}
-t15 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_o.htm")}
-t16 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_p.htm")}
-t17 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_q.htm")}
-t18 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_r.htm")}
-t19 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_s.htm")}
-t20 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_t.htm")}
-t21 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_u.htm")}
-t22 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_v.htm")}
-t23 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_w.htm")}
-t24 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_x.htm")}
-t25 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_y.htm")}
-t26 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_z.htm")}
+('a'..'z').map do |item|
+  Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")}
+end.map(&:join)
 
-t1.join
-t2.join
-t3.join
-t4.join
-t5.join
-t6.join
-t7.join
-t8.join
-t9.join
-t10.join
-t11.join
-t12.join
-t13.join
-t14.join
-t15.join
-t16.join
-t17.join
-t18.join
-t19.join
-t20.join
-t21.join
-t22.join
-t23.join
-t24.join
-t25.join
-t26.join
-puts "End at #{Time.now}"
+# a.length.times.map do |i|
+#   Thread.new do
+#     v = [i, i ** 2].join(' - ')
+#     mutex.synchronize { b << v }
+#   end
+# end.map(&:join)

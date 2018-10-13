@@ -165,8 +165,64 @@ end
 # run = Getlrc.new("http://www.kuwo.cn/geci/artist_a.htm")
 # puts run.nowarray
 # 还差一个 qita 分类没有下载 用run = Getlrc.new("http://www.kuwo.cn/geci/artist_qita.htm")
-"abcdefghijklmnopqrstuvwxyz".each_char do |item|
-  puts " -----#{item}组开始------- "
-  run = Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")
 
-end
+# "abcdefghijklmnopqrstuvwxyz".each_char do |item|
+#   puts " -----#{item}组开始------- "
+#   run = Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")
+# end
+
+puts "Started At #{Time.now}"
+t1 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_a.htm")}
+t2 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_b.htm")}
+t3 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_c.htm")}
+t4 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_d.htm")}
+t5 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_e.htm")}
+t6 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_f.htm")}
+t7 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_g.htm")}
+t8 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_h.htm")}
+t9 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_i.htm")}
+t10 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_j.htm")}
+t11 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_k.htm")}
+t12 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_l.htm")}
+t13 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_m.htm")}
+t14 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_n.htm")}
+t15 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_o.htm")}
+t16 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_p.htm")}
+t17 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_q.htm")}
+t18 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_r.htm")}
+t19 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_s.htm")}
+t20 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_t.htm")}
+t21 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_u.htm")}
+t22 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_v.htm")}
+t23 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_w.htm")}
+t24 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_x.htm")}
+t25 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_y.htm")}
+t26 = Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_z.htm")}
+
+t1.join
+t2.join
+t3.join
+t4.join
+t5.join
+t6.join
+t7.join
+t8.join
+t9.join
+t10.join
+t11.join
+t12.join
+t13.join
+t14.join
+t15.join
+t16.join
+t17.join
+t18.join
+t19.join
+t20.join
+t21.join
+t22.join
+t23.join
+t24.join
+t25.join
+t26.join
+puts "End at #{Time.now}"

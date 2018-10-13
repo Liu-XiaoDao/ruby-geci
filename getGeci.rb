@@ -29,10 +29,10 @@ class Getlrc
     # 如果是其他 范围变小
     if urlId == "qita" then
       _lastPageNum = _lastPageUrl[18..._lastPageUrl.length-4].to_i
-      Log.i(_lastPageNum)
+      puts _lastPageNum
     end
     (0..._lastPageNum).each do |i|
-      Log.i("loading #{i+1}")
+      puts "loading #{i+1}"
       getManList("http://www.kuwo.cn/geci/artist_#{urlId}_#{i}.htm")
     end
   end
@@ -58,7 +58,16 @@ class Getlrc
         html_response = http.read
       end
       # sleep 1
-      totalpage = JSON.parse(html_response)["totalPage"]
+      begin
+          totalpage = JSON.parse(html_response)["totalPage"]
+      rescue => e
+          puts "-----这个解析出错了-----"
+          puts e.message
+          puts e.backtrace.join('\n')
+          Log.i(e.backtrace.join('\n'))
+          sleep 5
+          next
+      end
 
       # 根据总页数 每页读取歌曲id
       page = 1
@@ -70,21 +79,22 @@ class Getlrc
         # sleep 1
         page = page + 1
         # http://www.kuwo.cn/yinyue/40079875
-        Log.i(html_response)
+        puts html_response
         #有一个地方会解析出错，所以加上了这个
         begin
             allSongId = JSON.parse(html_response)["data"]
         rescue => e
-            Log.i("-----这个解析出错了-----")
-            Log.e(e.message)
-            Log.e(e.backtrace.join('\n'))
-            sleep 10
+            puts "-----这个解析出错了-----"
+            puts e.message
+            puts e.backtrace.join('\n')
+            Log.i(e.backtrace.join('\n'))
+            sleep 5
             next
         end
         allSongId.each do |item|
           url = "http://www.kuwo.cn/yinyue/#{item["rid"]}"
-          Log.i(url)
-          Log.i("解析歌词...")
+          puts url
+          puts "解析歌词..."
           # 获取歌词
           getOneLyc(url)
         end
@@ -97,7 +107,7 @@ class Getlrc
   # 获取一首歌的歌词 存入数据库 "http://www.kuwo.cn/yinyue/6749207"
   def getOneLyc(url)
     @count += 1
-    Log.i("第#{@count}首")
+    puts "第#{@count}首"
     # 读取所有歌词 放入 @data
     parseHtml(url)
     # 把 @data 插入数据库
@@ -140,14 +150,14 @@ class Getlrc
         Lig.i("没有具体文字内容")
         return
       else
-        Log.i("有内容存入数据库:歌名--#{@data["_lrcname"]}")
-        Log.i("歌词文字数量#{@data["_lyccontent"].length}")
+        puts "有内容存入数据库:歌名--#{@data["_lrcname"]}"
+        puts "歌词文字数量#{@data["_lyccontent"].length}"
         client = Mysql2::Client.new(:host => 'localhost',:username => 'root',:password => '123456', :database => 'geci', :encoding => 'utf8');
         results = client.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
       end
     else
       return
-      Log.i("data没有内容")
+      puts "data没有内容"
     end
   end
 end
@@ -156,7 +166,7 @@ end
 # puts run.nowarray
 # 还差一个 qita 分类没有下载 用run = Getlrc.new("http://www.kuwo.cn/geci/artist_qita.htm")
 "abcdefghijklmnopqrstuvwxyz".each_char do |item|
-  Log.i(" -----#{item}组开始------- ")
+  puts " -----#{item}组开始------- "
   run = Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")
 
 end

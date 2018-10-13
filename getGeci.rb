@@ -8,11 +8,12 @@ require 'json'
 require './log'
 
 class Getlrc
-  @@db = Mysql2::Client.new(:host => 'localhost',:username => 'root',:password => '123456', :database => 'geci', :encoding => 'utf8');
+
   def initialize(url)
     @nowarray  = []
     @manListId = []
     @count = 0
+    @db = Mysql2::Client.new(:host => 'localhost',:username => 'root',:password => '123456', :database => 'geci', :encoding => 'utf8');
     getManPage(url)
     getSong(url)
   end
@@ -152,7 +153,7 @@ class Getlrc
       else
         puts "有内容存入数据库:歌名--#{@data["_lrcname"]}"
         puts "歌词文字数量#{@data["_lyccontent"].length}"
-        results = @@db.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
+        results = @db.query("INSERT INTO lyc ( lycname , album , albumLink , artist , artistLink , lyccontent ) VALUES ('#{@data["_lrcname"]}' , '#{@data["_album"]}' , '#{@data["_albumLink"]}' , '#{@data["_artist"]}' , '#{@data["_artistLink"]}', '#{@data["_lyccontent"]}')")
       end
     else
       return

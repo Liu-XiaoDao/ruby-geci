@@ -116,7 +116,7 @@ class Getlrc
       html  =  RestClient.get(url).body
       doc   =  Nokogiri::HTML.parse(html)
     rescue => e
-      Log.i("-----这个解析出错了:81-----")
+      Log.i("-----这个解析出错了:120-----")
       Log.i(e.backtrace.join('\n'))
       return
     end

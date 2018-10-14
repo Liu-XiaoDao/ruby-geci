@@ -61,11 +61,8 @@ class Getlrc
       begin
           totalpage = JSON.parse(html_response)["totalPage"]
       rescue => e
-          puts "-----这个解析出错了-----"
-          puts e.message
-          puts e.backtrace.join('\n')
+          Log.i("-----这个解析出错了:62-----")
           Log.i(e.backtrace.join('\n'))
-          sleep 5
           next
       end
 
@@ -83,11 +80,8 @@ class Getlrc
         begin
             allSongId = JSON.parse(html_response)["data"]
         rescue => e
-            puts "-----这个解析出错了-----"
-            puts e.message
-            puts e.backtrace.join('\n')
+            Log.i("-----这个解析出错了:81-----")
             Log.i(e.backtrace.join('\n'))
-            sleep 5
             next
         end
         allSongId.each do |item|
@@ -117,8 +111,15 @@ class Getlrc
   def parseHtml(url)
     @data = {}
     @nowarray = []
-    html  =  RestClient.get(url).body
-    doc   =  Nokogiri::HTML.parse(html)
+
+    begin
+      html  =  RestClient.get(url).body
+      doc   =  Nokogiri::HTML.parse(html)
+    rescue => e
+      Log.i("-----这个解析出错了:81-----")
+      Log.i(e.backtrace.join('\n'))
+      return
+    end
     # 注意：： 没有获取到歌词 退出  有些页面没有歌词 以及版权问题 不显示歌词
     return if doc.css('.lrcItem').empty?
     _lrcname    = doc.xpath('//*[@id="lrcName"]').text
@@ -155,22 +156,6 @@ class Getlrc
   end
 end
 
-# run = Getlrc.new("http://www.kuwo.cn/geci/artist_a.htm")
-# puts run.nowarray
-# 还差一个 qita 分类没有下载 用run = Getlrc.new("http://www.kuwo.cn/geci/artist_qita.htm")
-
-# "abcdefghijklmnopqrstuvwxyz".each_char do |item|
-#   puts " -----#{item}组开始------- "
-#   Thread.new(Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm"))
-# end.map(&:join)
-
 ('a'..'z').map do |item|
   Thread.new{Getlrc.new("http://www.kuwo.cn/geci/artist_#{item}.htm")}
 end.map(&:join)
-
-# a.length.times.map do |i|
-#   Thread.new do
-#     v = [i, i ** 2].join(' - ')
-#     mutex.synchronize { b << v }
-#   end
-# end.map(&:join)
